@@ -37,3 +37,10 @@ Percentage rollout is deterministic but not uniform. For a given `(flag_name, id
 If an identifier appears in both `enabled` and `disabled`, the constructor raises `ValueError` rather than silently picking one. A contradictory flag configuration is a bug; surface it at construction, not at evaluation time.
 
 `FlagSet.is_enabled` returns `False` for a missing flag name rather than raising. In a running system a missing flag usually means "feature off," and raising on every request for a config typo is the wrong default. If you need to distinguish "missing" from "off," call `FlagSet.get(name)` and check for `None`.
+
+## Design notes
+
+The window stores values eagerly rather than keeping running aggregates. Running
+sums drift with floating point over long streams, and recomputing from a small
+buffer is cheap enough that the drift is not worth the speed.
+
